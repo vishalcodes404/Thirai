@@ -1,22 +1,29 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import useScrollReveal from '@/hooks/useScrollReveal';
 import { SITE } from '@/lib/siteData';
 
+const GALLERY_CATEGORIES = [
+  { id: 'all', label: 'All Photographs' },
+  { id: 'portrait', label: 'Portraits & Rituals' },
+  { id: 'landscape', label: 'Landscapes & Venues' },
+];
+
 export default function GalleryPage() {
-  useScrollReveal();
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [category, setCategory] = useState('all');
+  useScrollReveal([category]);
 
   // Categorize or filter images
   const allImages = SITE.gallery;
-  const filteredImages = category === 'all'
-    ? allImages
-    : allImages.filter(img => {
-        if (category === 'portrait') return img.orientation === 'portrait';
-        if (category === 'landscape') return img.orientation === 'landscape';
-        return true;
-      });
+  const filteredImages = useMemo(() => {
+    if (category === 'all') return allImages;
+    return allImages.filter(img => {
+      if (category === 'portrait') return img.orientation === 'portrait';
+      if (category === 'landscape') return img.orientation === 'landscape';
+      return true;
+    });
+  }, [allImages, category]);
 
   const openLightbox = (index) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
@@ -56,50 +63,68 @@ export default function GalleryPage() {
     <main style={{ paddingTop: '7rem' }}>
       <section className="section gallery-section" aria-label="Visual Gallery">
         <div className="container">
-          <div className="gallery-section__header reveal">
+          <div className="gallery-section__header reveal visible">
             <span className="eyebrow">Visual Archive</span>
             <h1 className="gallery-section__heading heading-lg">Archive of Light</h1>
-            <p className="body-text" style={{ margin: '0 auto 2rem', textAlign: 'center' }}>
+            <p className="body-text" style={{ margin: '0 auto 1.5rem', textAlign: 'center', maxWidth: '620px' }}>
               Every photograph is a testament to light, connection, and intimate human beauty.
             </p>
 
-            {/* Filter buttons */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              {[
-                { id: 'all', label: 'All Photographs' },
-                { id: 'portrait', label: 'Portraits & Rituals' },
-                { id: 'landscape', label: 'Landscapes & Venues' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setCategory(tab.id);
-                    setLightboxIndex(null);
-                  }}
-                  style={{
-                    padding: '0.4rem 1.2rem',
-                    fontSize: 'var(--fs-eyebrow)',
-                    letterSpacing: 'var(--ls-wide)',
-                    textTransform: 'uppercase',
-                    border: '1px solid',
-                    borderColor: category === tab.id ? 'var(--clr-accent)' : 'var(--clr-border)',
-                    background: category === tab.id ? 'var(--clr-accent)' : 'transparent',
-                    color: category === tab.id ? '#fff' : 'var(--clr-text-light)',
-                    cursor: 'pointer',
-                    transition: 'all var(--dur-fast) var(--ease-out)',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            {/* Shared Luxury Pill Filter Navigation */}
+            <div className="atelier-filter-wrapper">
+              <nav className="atelier-filter-bar" role="tablist" aria-label="Filter archive photographs by theme">
+                {GALLERY_CATEGORIES.map((tab) => {
+                  const count = tab.id === 'all'
+                    ? allImages.length
+                    : allImages.filter(img => img.orientation === tab.id).length;
+                  const isActive = category === tab.id;
+
+                  return (
+                    <button
+                      key={tab.id}
+                      role="tab"
+                      id={`tab-gallery-${tab.id}`}
+                      aria-selected={isActive}
+                      aria-controls="gallery-masonry-grid"
+                      type="button"
+                      onClick={() => {
+                        setCategory(tab.id);
+                        setLightboxIndex(null);
+                      }}
+                      className={`atelier-filter-btn ${isActive ? 'is-active' : ''}`}
+                    >
+                      <span>{tab.label}</span>
+                      <span className="atelier-filter-badge" aria-label={`${count} photographs`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              <div className="atelier-filter-status" aria-live="polite">
+                <span className="atelier-filter-status-dot" aria-hidden="true" />
+                <span>
+                  {category === 'all'
+                    ? `DISPLAYING ALL ${filteredImages.length} CURATED ARCHIVAL PHOTOGRAPHS`
+                    : `DISPLAYING ${filteredImages.length} ${category.toUpperCase()} COMPOSITIONS`}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="masonry reveal" style={{ marginTop: 'var(--sp-xl)' }}>
+          <div
+            id="gallery-masonry-grid"
+            role="region"
+            aria-label="Archival photo gallery"
+            className="masonry reveal visible"
+            style={{ marginTop: 'var(--sp-xl)' }}
+          >
             {filteredImages.map((item, index) => (
               <div
-                key={index}
-                className="masonry__item"
+                key={`${item.src}-${category}-${index}`}
+                className="masonry__item is-card-visible visible"
+                style={{ animationDelay: `${(index % 6) * 0.06}s` }}
                 onClick={() => openLightbox(index)}
                 role="button"
                 tabIndex={0}

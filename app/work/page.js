@@ -1,57 +1,99 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import useScrollReveal from '@/hooks/useScrollReveal';
 import { SITE } from '@/lib/siteData';
 
-export default function WorkPage() {
-  useScrollReveal();
-  const [filter, setFilter] = useState('all');
+const CATEGORIES = [
+  { id: 'all', label: 'All Locations', tag: 'Global Archive' },
+  { id: 'udaipur', label: 'Udaipur', tag: 'City Palace & Heritage' },
+  { id: 'alibaug', label: 'Alibaug', tag: 'Monsoon Coast' },
+  { id: 'jaisalmer', label: 'Jaisalmer', tag: 'Golden Fort' },
+  { id: 'goa', label: 'Goa', tag: 'Arabian Sea Shore' },
+];
 
-  const filteredProjects = filter === 'all'
-    ? SITE.projects
-    : SITE.projects.filter(p => p.location.toLowerCase().includes(filter.toLowerCase()));
+export default function WorkPage() {
+  const [activeFilter, setActiveFilter] = useState('all');
+  useScrollReveal([activeFilter]);
+
+  const filteredProjects = useMemo(() => {
+    if (activeFilter === 'all') return SITE.projects;
+    return SITE.projects.filter((p) =>
+      p.location.toLowerCase().includes(activeFilter.toLowerCase())
+    );
+  }, [activeFilter]);
+
+  const currentCategory = CATEGORIES.find((c) => c.id === activeFilter) || CATEGORIES[0];
 
   return (
     <main style={{ paddingTop: '7rem' }}>
-      <section className="section" aria-label="Portfolio">
+      <section className="section" aria-label="Selected Commissions Portfolio">
         <div className="container">
-          <div className="work__header reveal">
+          <div className="work__header reveal visible">
             <span className="eyebrow">Curated Stories</span>
             <h1 className="heading-lg">Stories Written in Light</h1>
-            <p className="body-text" style={{ margin: '0 auto 2rem', textAlign: 'center' }}>
-              Each wedding is a distinct tapestry of light, legacy, and genuine love.
+            <p className="body-text" style={{ margin: '0 auto 1.5rem', textAlign: 'center', maxWidth: '620px' }}>
+              Each wedding is an intimate visual legacy — documented with honest emotion, fine-art stillness, and cinematic poise.
             </p>
 
-            {/* Filter buttons */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-              {['all', 'udaipur', 'alibaug', 'jaisalmer', 'goa'].map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setFilter(item)}
-                  style={{
-                    padding: '0.5rem 1.4rem',
-                    fontSize: 'var(--fs-eyebrow)',
-                    letterSpacing: 'var(--ls-wide)',
-                    textTransform: 'uppercase',
-                    border: '1px solid',
-                    borderColor: filter === item ? 'var(--clr-accent)' : 'var(--clr-border)',
-                    background: filter === item ? 'var(--clr-accent)' : 'transparent',
-                    color: filter === item ? '#fff' : 'var(--clr-text-muted)',
-                    cursor: 'pointer',
-                    transition: 'all var(--dur-fast) var(--ease-out)',
-                  }}
-                >
-                  {item === 'all' ? 'All Locations' : item}
-                </button>
-              ))}
+            {/* Professional Luxury Category Filter Navigation */}
+            <div className="work-filter-wrapper">
+              <nav className="work-filter-bar" role="tablist" aria-label="Filter stories by wedding destination">
+                {CATEGORIES.map((cat) => {
+                  const count = cat.id === 'all'
+                    ? SITE.projects.length
+                    : SITE.projects.filter(p => p.location.toLowerCase().includes(cat.id)).length;
+                  const isActive = activeFilter === cat.id;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      role="tab"
+                      id={`tab-${cat.id}`}
+                      aria-selected={isActive}
+                      aria-controls="work-projects-grid"
+                      type="button"
+                      onClick={() => setActiveFilter(cat.id)}
+                      className={`work-filter-btn ${isActive ? 'is-active' : ''}`}
+                    >
+                      <span>{cat.label}</span>
+                      <span className="work-filter-badge" aria-label={`${count} stories`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              <div className="work-filter-status" aria-live="polite">
+                <span className="work-filter-status-dot" aria-hidden="true" />
+                <span>
+                  {activeFilter === 'all'
+                    ? `Displaying all ${filteredProjects.length} curated commissions`
+                    : `Displaying ${filteredProjects.length} commission from ${currentCategory.label} (${currentCategory.tag})`}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="work__projects" style={{ marginTop: 'var(--sp-xl)' }}>
-            {filteredProjects.map((project) => (
-              <article key={project.id} className="project reveal">
-                <Link href={`/work/${project.id}`} className={`project__image project__image--${project.layout}`}>
+          <div
+            id="work-projects-grid"
+            role="region"
+            aria-label="Filtered portfolio stories"
+            className="work__projects"
+            style={{ marginTop: 'var(--sp-xl)' }}
+          >
+            {filteredProjects.map((project, idx) => (
+              <article
+                key={`${project.id}-${activeFilter}`}
+                className="project is-card-visible visible"
+                style={{ animationDelay: `${idx * 0.08}s` }}
+              >
+                <Link
+                  href={`/work/${project.id}`}
+                  className={`project__image project__image--${project.layout}`}
+                  aria-label={`View story: ${project.title}`}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={project.coverImage}
@@ -78,6 +120,21 @@ export default function WorkPage() {
                 </div>
               </article>
             ))}
+
+            {filteredProjects.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--clr-text-muted)' }}>
+                <p style={{ fontFamily: 'var(--ff-serif)', fontSize: 'var(--fs-h3)', marginBottom: '1rem' }}>
+                  No stories found for this location yet.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveFilter('all')}
+                  className="btn btn--outline"
+                >
+                  View All Locations
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>

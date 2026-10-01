@@ -11,6 +11,8 @@ export default function Hero() {
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
       video.defaultMuted = true;
       video.muted = true;
       const playPromise = video.play();
@@ -18,7 +20,12 @@ export default function Hero() {
         playPromise
           .then(() => setVideoLoaded(true))
           .catch(() => {
-            // Autoplay permitted once user interacts
+            // Autoplay permitted once user interacts on mobile
+            const onTouch = () => {
+              video.play().then(() => setVideoLoaded(true)).catch(() => {});
+              window.removeEventListener('touchstart', onTouch);
+            };
+            window.addEventListener('touchstart', onTouch, { once: true, passive: true });
           });
       }
     }
@@ -65,6 +72,8 @@ export default function Hero() {
             muted
             loop
             playsInline
+            webkit-playsinline="true"
+            x5-playsinline="true"
             controls={false}
             disablePictureInPicture
             disableRemotePlayback

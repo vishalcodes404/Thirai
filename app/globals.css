@@ -2544,8 +2544,8 @@ ul, ol {
 
   .project { grid-template-columns: 1fr !important; gap: var(--sp-md); }
   .project .project__image { order: 1 !important; }
-  .project .project__info { order: 2 !important; padding: var(--sp-sm) 0; text-align: center; }
-  .project__link { justify-content: center; }
+  .project .project__info { order: 2 !important; padding: var(--sp-sm) 0; text-align: left; }
+  .project__link { justify-content: flex-start; }
 
   .films__grid { grid-template-columns: repeat(2, 1fr); }
 
@@ -2565,15 +2565,130 @@ ul, ol {
 @media(max-width: 640px) {
   .site-header__inner { padding: 0.9rem var(--gutter); }
   .floating-contact__pill { display: none; }
-  .floating-contact { bottom: 20px; right: 20px; }
+  .floating-contact { bottom: 20px; right: 20px; z-index: 99; }
 
   .section { padding: var(--sp-xl) 0; }
 
-  /* Mobile Hero */
+  /* Mobile Hero Cinema — Unobstructed, Vivid, Symmetrical like Laptop */
+  .hero-cinema {
+    height: 100svh;
+    height: 100dvh;
+    min-height: 560px;
+  }
+
+  .hero-cinema__video {
+    object-position: center 36%; /* Frames groom/couple and golden sunset on mobile without cutoffs */
+  }
+
+  .hero-cinema__vignette-top {
+    height: 18%;
+    background: linear-gradient(to bottom, rgba(5, 5, 5, 0.45) 0%, transparent 100%);
+  }
+
+  .hero-cinema__fade-bottom {
+    height: 22%;
+    background: linear-gradient(to bottom, transparent 0%, rgba(5, 5, 5, 0.3) 45%, rgba(5, 5, 5, 0.8) 85%, #050505 100%);
+  }
+
+  .hero-cinema__content {
+    padding: clamp(4.5rem, 9vh, 5.5rem) var(--gutter) clamp(1.8rem, 4vh, 2.5rem);
+  }
+
   .hero-cinema__bottom-bar {
+    display: flex;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    width: 100%;
+    gap: 0.8rem;
+  }
+
+  .hero-cinema__caption {
+    gap: 0.25rem;
+  }
+
+  .hero-cinema__atelier-badge {
+    font-size: 1.15rem;
+    letter-spacing: 0.22em;
+  }
+
+  .hero-cinema__atelier-sub {
+    font-size: 0.58rem;
+    letter-spacing: 0.24em;
+  }
+
+  .hero-cinema__sound-toggle {
+    margin-top: 0.4rem;
+    padding: 0.32rem 0.72rem;
+    font-size: 0.62rem;
+  }
+
+  .hero-cinema__scroll {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .hero-cinema__scroll-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+  }
+
+  .hero-cinema__scroll-line {
+    height: 32px;
+  }
+
+  /* Mobile Luxury Pill Filter (Identical Single-Line Capsule to Laptop) */
+  .atelier-filter-wrapper,
+  .work-filter-wrapper {
+    width: 100%;
+    margin: 1.2rem 0 2.2rem;
+    padding: 0;
+  }
+
+  .atelier-filter-bar,
+  .work-filter-bar {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0.35rem 0.55rem;
+    gap: 0.45rem;
+    max-width: 100%;
+    border-radius: 9999px;
+  }
+
+  .atelier-filter-bar::-webkit-scrollbar,
+  .work-filter-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .atelier-filter-btn,
+  .work-filter-btn {
+    flex-shrink: 0;
+    padding: 0.48rem 1.05rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+
+  .atelier-filter-badge,
+  .work-filter-badge {
+    min-width: 1.15rem;
+    height: 1.15rem;
+    font-size: 0.58rem;
+  }
+
+  .atelier-filter-status,
+  .work-filter-status {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    margin-top: 0.8rem;
+    text-align: center;
+    justify-content: center;
   }
 
   /* Mobile Our Approach: Staggered flow */
@@ -2603,7 +2718,15 @@ ul, ol {
   .films__grid { grid-template-columns: 1fr; }
   .stats__grid { grid-template-columns: 1fr 1fr; gap: var(--sp-sm); }
   .form-row { grid-template-columns: 1fr; }
-  .masonry { columns: 1; }
+  
+  /* Mobile Masonry — 2 Columns for Rich Editorial Feel like Laptop */
+  .masonry { 
+    columns: 2; 
+    column-gap: 0.75rem; 
+  }
+  .masonry__item { 
+    margin-bottom: 0.75rem; 
+  }
 
   .footer__wordmark-container { flex-direction: column; gap: 0.5rem; }
   .footer__columns { grid-template-columns: 1fr; gap: var(--sp-md); }

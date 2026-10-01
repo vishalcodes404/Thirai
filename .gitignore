@@ -40,7 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# scratch / test images
+# scratch / test images & raw video backups
 crop_test.png
 logo_crop_raw.png
 preview_on_dark.png
@@ -48,3 +48,4 @@ preview_on_white.png
 synthetic_bg.png
 test_extract.png
 test_u2netp.png
+public/videos/hero_raw_original.mp4
